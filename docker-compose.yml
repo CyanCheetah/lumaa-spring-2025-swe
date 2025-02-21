@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: postgres-todo
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword #wow very secure!!
+      POSTGRES_DB: todo_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: todo-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:mysecretpassword@postgres:5432/todo_db
+      - JWT_SECRET=SaiTanujk #password for the postgres database you can make your own
+      - PORT=3000
+    depends_on:
+      - postgres
+
+  frontend:
+    build: ./frontend
+    container_name: todo-frontend
+    ports:
+      - "3001:3001"
+    environment:
+      - REACT_APP_API_URL=http://localhost:3000
+      - PORT=3001
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data: 
